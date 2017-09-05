@@ -1,0 +1,6 @@
+framework module MICountryPicker {
+  umbrella header "MICountryPicker-umbrella.h"
+
+  export *
+  module * { export * }
+}

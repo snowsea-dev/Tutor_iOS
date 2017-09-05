@@ -16,7 +16,7 @@ protocol ResponseDelegate {
 
 class ApiConnector {
     let baseUrl = "https://tshiamo.herokuapp.com/api/"
-    //let baseUrl = "http://192.168.1.114:1337/api/"
+    // let baseUrl = "http://192.168.1.115:1337/api/"
     var credentials: String = ""
     
     func setCredentials(email: String, password: String) {

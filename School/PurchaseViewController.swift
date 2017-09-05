@@ -87,7 +87,7 @@ extension PurchaseViewController: ResponseDelegate {
                 showStatus(status: checkoutStatus)
             
             case "Success":
-                
+                print("Success")
                 self.navigationController?.popViewController(animated: true)
                 
             default:
@@ -105,13 +105,31 @@ extension PurchaseViewController: ResponseDelegate {
     func getStatus() {
         self.status = "Status"
         let apiUrl = "\(Apis.checkoutStatus)\(checkoutID)"
-        apiConnector.get(api: apiUrl, id: user.email, token: user.token, parameters: nil, delegate: self)
         print("getStatus \(apiUrl)")
+        apiConnector.get(api: apiUrl, id: user.email, token: user.token, parameters: nil, delegate: self)
+    }
+    
+    func matches(for regex: String, in text: String) -> Bool {
+        do {
+            let regex = try NSRegularExpression(pattern: regex)
+            let nsString = text as NSString
+            let results = regex.matches(in: text, range: NSRange(location: 0, length: nsString.length))
+            return results.count != 0
+        } catch let error {
+            print("invalid regex: \(error.localizedDescription)")
+            return false
+        }
     }
     
     func showStatus(status: CheckoutStatus) {
         print("showStatus \(status.code)")
-        if status.code == "000.000.000" || status.code == "000.100.110" {
+        if (matches(for: "^(000.200)", in: status.code) == false) {
+            let appDelegate  = UIApplication.shared.delegate as! AppDelegate
+            let viewController = appDelegate.window!.rootViewController
+            viewController?.dismiss(animated: false, completion: nil)
+        }
+        if (matches(for: "^(000.000.|000.100.1|000.[36])", in: status.code) == true ||
+            matches(for: "^(000.400.0|000.400.100)", in: status.code) == true) {
             self.status = "Success"
             showLoadingHUD(text: "Please wait...")
             
@@ -119,6 +137,7 @@ extension PurchaseViewController: ResponseDelegate {
             newPaid.courseNumber = courses[selectedCourseNumber].number
             newPaid.levelNumber = courses[selectedCourseNumber].levels[selectedLevelNumber].number
             newPaid.subjectNumber = subjects[selectedSubjectNumber].number
+            newPaid.remainDate = 365
             student.addPaidSubject(subject: newPaid)
             let params: Parameters = ["course_number": newPaid.courseNumber,
                                       "level_number": newPaid.levelNumber,
@@ -127,7 +146,7 @@ extension PurchaseViewController: ResponseDelegate {
             apiConnector.post(api: Apis.checkoutSuccess, id: user.email, token: user.token, parameters: params, delegate: self)
             
         } else {
-            //showMessage(title: "Purchase", message: status.description)
+            showMessage(title: "Error...", message: status.description)
         }
     }
     
@@ -136,7 +155,7 @@ extension PurchaseViewController: ResponseDelegate {
         let provider = OPPPaymentProvider(mode: OPPProviderMode.live)
         
         let checkoutSettings = OPPCheckoutSettings()
-        checkoutSettings.schemeURL = "com.snowsea.School.payments"
+        checkoutSettings.schemeURL = "com.snowsea.accountingtutors.payments"
         
         // Set available payment brands for your shop
         checkoutSettings.paymentBrands = ["VISA", "MASTER"]
@@ -148,6 +167,7 @@ extension PurchaseViewController: ResponseDelegate {
                 self.showMessage(title: "Error...", message: (error?.localizedDescription)!)
             } else {
                 // Send request to your server to obtain the status of the synchronous transaction.
+                print("__SSS__")
                 self.getStatus()
             }
         }, paymentBrandSelectedHandler: { (paymentBrand, completion) in

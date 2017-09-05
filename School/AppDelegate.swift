@@ -27,8 +27,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
-        if url.scheme?.caseInsensitiveCompare("com.snowsea.school.payments") == .orderedSame {
+        if url.scheme?.caseInsensitiveCompare("com.snowsea.accountingtutors.payments") == .orderedSame {
             // send notification to get payment status
+            print("SNOWSEA_APPLICATION")
             purchaseViewController?.getStatus()
             return true
         }

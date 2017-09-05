@@ -52,7 +52,8 @@ class Student {
     
     func fromJSON(_ json: JSON) {
         userId = json["user_id"].stringValue
-    
+        
+        paidSubjects = []
         for subject in json["paid_subjects"].arrayValue {
             let newPaid = PaidSubject()
             newPaid.fromJSON(subject)
@@ -95,6 +96,7 @@ class Lecturer {
     func fromJSON(_ json: JSON) {
         userId = json["user_id"].stringValue
         
+        assignedSubjects = []
         for subject in json["subjects"].arrayValue {
             let assigned = AssignedSubject()
             assigned.fromJSON(subject)
